@@ -42,12 +42,15 @@ async def get_users(channel):
 		messages = history.messages
 		for message in messages:
 			all_messages +=1
-			id = message.to_dict()['from_id']['user_id']
-			if id not in users:
-				full = await get_full(id)
-				users[id] = full.users[0].username
-			if len(users)>=total_user_limit:
-				break
+			try:
+				id = message.to_dict()['from_id']['user_id']
+				if id not in users:
+					full = await get_full(id)
+					users[id] = full.users[0].username
+				if len(users)>=total_user_limit:
+					break
+			except KeyError:
+				pass
 		offset_msg = messages[len(messages) - 1].id
 	with open('user.csv', 'w') as csvfile:
 		writer = csv.writer(csvfile)
