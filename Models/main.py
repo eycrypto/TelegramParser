@@ -65,7 +65,7 @@ async def get_users(channel, model_url):
                     if message.id == model_url.last_message:
                         finish_check_message = False
                         break
-            except KeyError:
+            except Exception:
                 pass
         offset_msg = messages[-1].id
 
