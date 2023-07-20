@@ -55,7 +55,6 @@ async def get_users(channel, model_url):
             model_url.save()
             a = False
         for message in messages:
-            print(message.id)
             try:
                 id = message.to_dict()['from_id']['user_id']
                 if not users.filter(user_id=id):
