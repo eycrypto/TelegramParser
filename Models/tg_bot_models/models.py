@@ -12,3 +12,18 @@ class Users(models.Model):
     username = models.CharField(max_length=128, null=True, verbose_name='Имя пользователя')
     find_chat = models.URLField(verbose_name='URL чата, в котором найден пользователь')
     date = models.DateField(auto_now_add=True, verbose_name='Дата добавления пользователя')
+    need_send_message = models.BooleanField(default=False, verbose_name='Нужно ли отправить сообщение пользователю')
+    massage_send = models.BooleanField(default=False, verbose_name='Пользователю отправлено сообщение')
+
+class Proxy(models.Model):
+    address = models.CharField(max_length=32, verbose_name='Адресс прокси')
+    port = models.IntegerField(default=0, verbose_name='Порт прокси')
+    username = models.CharField(max_length=64, verbose_name='Имя пользователя прокси')
+    password = models.CharField(max_length=128, verbose_name='Пароль пользователя прокси')
+
+class API(models.Model):
+    username = models.CharField(max_length=64, verbose_name='Имя пользователя')
+    phone = models.CharField(max_length=64, verbose_name='Номер телефона(должн начинаться с +')
+    api_id = models.CharField(max_length=16, verbose_name='id API Telegram')
+    api_hash = models.CharField(max_length=64, verbose_name='hash API Telegram')
+

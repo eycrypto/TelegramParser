@@ -1,12 +1,15 @@
 import configparser
 import os
+import random
+import time
+
 import django
 
 os.environ['DJANGO_SETTINGS_MODULE'] = 'Models.settings'
 os.environ["DJANGO_ALLOW_ASYNC_UNSAFE"] = "true"
 django.setup()
 
-from tg_bot_models.models import URLModels, Users
+from tg_bot_models.models import URLModels, Users, API, Proxy
 from telethon.sync import TelegramClient
 from telethon.tl.functions.messages import GetHistoryRequest
 from telethon.tl.functions.users import GetFullUserRequest
@@ -18,13 +21,28 @@ api_id = config['Telegram']['api_id']
 api_hash = config['Telegram']['api_hash']
 username = config['Telegram']['username']
 
-client = TelegramClient(username, api_id, api_hash)
+main_client = TelegramClient(username, int(api_id), api_hash)
+main_client.start()
 
-client.start()
+
+async def activate_sessions(all_api, all_proxy):
+    a = 0
+    for api in all_api:
+        proxy = all_proxy[a]
+        proxy = {
+            "proxy_type": "socks5",
+            "addr": proxy.address,
+            "port": proxy.port,
+            "username": proxy.username,
+            "password": proxy.password
+        }
+        client = TelegramClient(api.username, api_id=api.api_id, api_hash=api.api_hash, proxy=proxy)
+        await client.start(phone=api.phone)
+        a += 1
 
 
 async def get_full(id):
-    return await client(GetFullUserRequest(id))
+    return await main_client(GetFullUserRequest(id))
 
 
 async def get_users(channel, model_url):
@@ -36,7 +54,7 @@ async def get_users(channel, model_url):
     a = True
 
     while finish_check_message:
-        history = await client(GetHistoryRequest(
+        history = await main_client(GetHistoryRequest(
             peer=channel,
             offset_id=offset_msg,
             offset_date=None, add_offset=0,
@@ -55,7 +73,6 @@ async def get_users(channel, model_url):
             model_url.save()
             a = False
         for message in messages:
-            print(message.id)
             try:
                 id = message.to_dict()['from_id']['user_id']
                 if not users.filter(user_id=id):
@@ -72,14 +89,58 @@ async def get_users(channel, model_url):
         offset_msg = messages[-1].id
 
 
+async def send_message_to_users(all_api, all_proxy, users):
+    a = 0
+    text = input('Введите текст рассылки\n')
+    while users:
+        mesage_count = 0
+        proxy = all_proxy[a]
+        api = all_api[a]
+        proxy = {
+            "proxy_type": "socks5",
+            "addr": proxy.address,
+            "port": proxy.port,
+            "username": proxy.username,
+            "password": proxy.password
+        }
+        client = TelegramClient(api.username, api_id=api.api_id, api_hash=api.api_hash, proxy=proxy)
+        await client.start()
+        while mesage_count < 4 and users:
+            user = users[0]
+            await client.send_message(user.username,
+                                      text)
+            user.need_send_message = False
+            user.massage_send = True
+            user.save()
+            users = Users.objects.filter(need_send_message=True)
+            mesage_count += 1
+            time.sleep(3)
+        a += 1
+
+
 async def main():
-    while True:
-        urls = URLModels.objects.all()
-        for model_url in urls:
-            url = model_url.url
-            channel = await client.get_entity(url)
-            await get_users(channel, model_url)
+    task = int(
+        input('Вы уже актевировали сессии? Если нет, то введите 1, если акстивировали, то введите люой символ\n'))
+    if task == 1:
+        all_api = API.objects.all()
+        all_proxy = Proxy.objects.all()
+        await activate_sessions(all_api, all_proxy)
+    task = int(input('Выбирите действие, которое хотите выполнить:\n'
+                     '1 - Собр пользователей \n'
+                     '2 Отправка пользователям сообщений\n'))
+    if task == 1:
+        while True:
+            urls = URLModels.objects.all()
+            for model_url in urls:
+                url = model_url.url
+                channel = await main_client.get_entity(url)
+                await get_users(channel, model_url)
+    elif task == 2:
+        all_api = API.objects.all()
+        all_proxy = Proxy.objects.all()
+        users = Users.objects.filter(need_send_message=True)
+        await send_message_to_users(all_api, all_proxy, users)
 
 
-with client:
-    client.loop.run_until_complete(main())
+with main_client:
+    main_client.loop.run_until_complete(main())
