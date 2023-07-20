@@ -50,12 +50,10 @@ async def get_users(channel, model_url):
             model_url.last_message = messages[0].id - 5000
             model_url.save()
         elif model_url.inuse and a:
-            c = model_url.last_message
             model_url.last_message = messages[0].id + 1
             model_url.save()
             a = False
         for message in messages:
-            print(message.id)
             try:
                 id = message.to_dict()['from_id']['user_id']
                 if not users.filter(user_id=id):
@@ -64,10 +62,10 @@ async def get_users(channel, model_url):
                     Users.objects.create(user_id=id,
                                          username=username,
                                          find_chat=model_url.url)
-                if message.id <= c:
-                    finish_check_message = False
-                    break
-            except Exception:
+                    if message.id == model_url.last_message:
+                        finish_check_message = False
+                        break
+            except KeyError:
                 pass
         offset_msg = messages[-1].id
 
