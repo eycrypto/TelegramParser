@@ -1,3 +1,4 @@
+import asyncio
 import configparser
 import os
 import random
@@ -9,20 +10,10 @@ os.environ['DJANGO_SETTINGS_MODULE'] = 'Models.settings'
 os.environ["DJANGO_ALLOW_ASYNC_UNSAFE"] = "true"
 django.setup()
 
-from tg_bot_models.models import URLModels, Users, API, Proxy
+from tg_bot_models.models import URLModels, Users, API, Proxy, SendMessage
 from telethon.sync import TelegramClient
 from telethon.tl.functions.messages import GetHistoryRequest
 from telethon.tl.functions.users import GetFullUserRequest
-
-config = configparser.ConfigParser()
-config.read("config.ini")
-
-api_id = config['Telegram']['api_id']
-api_hash = config['Telegram']['api_hash']
-username = config['Telegram']['username']
-
-main_client = TelegramClient(username, int(api_id), api_hash)
-main_client.start()
 
 
 async def activate_sessions(all_api, all_proxy):
@@ -41,11 +32,11 @@ async def activate_sessions(all_api, all_proxy):
         a += 1
 
 
-async def get_full(id):
-    return await main_client(GetFullUserRequest(id))
+async def get_full(id, client):
+    return await client(GetFullUserRequest(id))
 
 
-async def get_users(channel, model_url):
+async def get_users(channel, model_url, client):
     print(f'Start parsing {model_url.url}')
     offset_msg = 0
     limit_msg = 100
@@ -54,7 +45,7 @@ async def get_users(channel, model_url):
     a = True
 
     while finish_check_message:
-        history = await main_client(GetHistoryRequest(
+        history = await client(GetHistoryRequest(
             peer=channel,
             offset_id=offset_msg,
             offset_date=None, add_offset=0,
@@ -69,14 +60,14 @@ async def get_users(channel, model_url):
             model_url.save()
         elif model_url.inuse and a:
             c = model_url.last_message
-            model_url.last_message = messages[0].id + 1
+            model_url.last_message = messages[0].id
             model_url.save()
             a = False
         for message in messages:
             try:
                 id = message.to_dict()['from_id']['user_id']
                 if not users.filter(user_id=id):
-                    full = await get_full(id)
+                    full = await get_full(id, client)
                     username = full.users[0].username
                     Users.objects.create(user_id=id,
                                          username=username,
@@ -107,34 +98,50 @@ async def send_message_to_users(all_api, all_proxy, users):
         await client.start()
         while mesage_count < 4 and users:
             user = users[0]
-            await client.send_message(user.username,
-                                      text)
-            user.need_send_message = False
-            user.massage_send = True
-            user.save()
-            users = Users.objects.filter(need_send_message=True)
-            mesage_count += 1
-            time.sleep(3)
-        a += 1
+            try:
+                await client.send_message(user.username,
+                                          text)
+                user.need_send_message = False
+                user.massage_send = True
+                user.save()
+                users = Users.objects.filter(need_send_message=True)
+                SendMessage.objects.create(
+                    user=user,
+                    message=text,
+                    is_send=True,
+                    error=None
+                )
+            except Exception as exc:
+                SendMessage.objects.create(
+                    user=user,
+                    message=text,
+                    is_send=False,
+                    error=exc
+                )
+                mesage_count += 1
+                time.sleep(3)
+            a += 1
 
 
 async def main():
-    task = int(
-        input('Вы уже актевировали сессии? Если нет, то введите 1, если акстивировали, то введите люой символ\n'))
-    if task == 1:
-        all_api = API.objects.all()
-        all_proxy = Proxy.objects.all()
+    task = input('Вы уже актевировали сессии? Если нет, то введите 1, если акстивировали, то введите люой символ\n')
+    all_api = API.objects.all()
+    all_proxy = Proxy.objects.all()
+    if task == '1':
         await activate_sessions(all_api, all_proxy)
     task = int(input('Выбирите действие, которое хотите выполнить:\n'
                      '1 - Собр пользователей \n'
                      '2 Отправка пользователям сообщений\n'))
     if task == 1:
+        api = all_api[0]
+        client = TelegramClient(api.username, api_id=api.api_id, api_hash=api.api_hash)
+        await client.start(phone=api.phone)
         while True:
             urls = URLModels.objects.all()
             for model_url in urls:
                 url = model_url.url
-                channel = await main_client.get_entity(url)
-                await get_users(channel, model_url)
+                channel = await client.get_entity(url)
+                await get_users(channel, model_url, client)
     elif task == 2:
         all_api = API.objects.all()
         all_proxy = Proxy.objects.all()
@@ -142,5 +149,5 @@ async def main():
         await send_message_to_users(all_api, all_proxy, users)
 
 
-with main_client:
-    main_client.loop.run_until_complete(main())
+loop = asyncio.get_event_loop()
+loop.run_until_complete(main())

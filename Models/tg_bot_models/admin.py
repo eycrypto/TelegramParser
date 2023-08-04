@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import URLModels, Users, API, Proxy
+from .models import URLModels, Users, API, Proxy, SendMessage
 
 
 @admin.register(URLModels)
@@ -20,3 +20,7 @@ class APIAdmin(admin.ModelAdmin):
 class ProxyAdmin(admin.ModelAdmin):
     pass
 
+@admin.register(SendMessage)
+class SendMessageAdmin(admin.ModelAdmin):
+    list_display = ('pk', 'user')
+    list_filter = ['is_send']

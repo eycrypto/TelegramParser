@@ -15,11 +15,13 @@ class Users(models.Model):
     need_send_message = models.BooleanField(default=False, verbose_name='Нужно ли отправить сообщение пользователю')
     massage_send = models.BooleanField(default=False, verbose_name='Пользователю отправлено сообщение')
 
+
 class Proxy(models.Model):
-    address = models.CharField(max_length=32, verbose_name='Адресс прокси')
-    port = models.IntegerField(default=0, verbose_name='Порт прокси')
-    username = models.CharField(max_length=64, verbose_name='Имя пользователя прокси')
-    password = models.CharField(max_length=128, verbose_name='Пароль пользователя прокси')
+    address = models.CharField(max_length=32, blank=True, null=True, verbose_name='Адресс прокси')
+    port = models.IntegerField(default=0, blank=True, null=True, verbose_name='Порт прокси')
+    username = models.CharField(max_length=64, blank=True, null=True, verbose_name='Имя пользователя прокси')
+    password = models.CharField(max_length=128, blank=True, null=True, verbose_name='Пароль пользователя прокси')
+
 
 class API(models.Model):
     username = models.CharField(max_length=64, verbose_name='Имя пользователя')
@@ -27,3 +29,10 @@ class API(models.Model):
     api_id = models.CharField(max_length=16, verbose_name='id API Telegram')
     api_hash = models.CharField(max_length=64, verbose_name='hash API Telegram')
 
+
+class SendMessage(models.Model):
+    user = models.ForeignKey('Users', on_delete=models.CASCADE, related_name='user',
+                             verbose_name='Пользователь, которому отправлено сообщение')
+    message = models.CharField(max_length=2048, verbose_name='Текст сообщения')
+    is_send = models.BooleanField(verbose_name='Отправлено ли сообщение')
+    error = models.CharField(null=True, blank=True, max_length=128, verbose_name='Ошибка, если есть')
