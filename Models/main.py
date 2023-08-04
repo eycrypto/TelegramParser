@@ -69,7 +69,7 @@ async def get_users(channel, model_url):
             model_url.save()
         elif model_url.inuse and a:
             c = model_url.last_message
-            model_url.last_message = messages[0].id + 1
+            model_url.last_message = messages[0].id
             model_url.save()
             a = False
         for message in messages:
