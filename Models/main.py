@@ -16,20 +16,11 @@ from telethon.tl.functions.messages import GetHistoryRequest
 from telethon.tl.functions.users import GetFullUserRequest
 
 
-async def activate_sessions(all_api, all_proxy):
-    a = 0
+async def activate_sessions(all_api):
     for api in all_api:
-        proxy = all_proxy[a]
-        proxy = {
-            "proxy_type": "socks5",
-            "addr": proxy.address,
-            "port": proxy.port,
-            "username": proxy.username,
-            "password": proxy.password
-        }
-        client = TelegramClient(api.username, api_id=api.api_id, api_hash=api.api_hash, proxy=proxy)
+        client = TelegramClient(api.username, api_id=api.api_id, api_hash=api.api_hash, proxy=api.proxy)
         await client.start(phone=api.phone)
-        a += 1
+        await client.disconnect()
 
 
 async def get_full(id, client):
@@ -80,21 +71,13 @@ async def get_users(channel, model_url, client):
         offset_msg = messages[-1].id
 
 
-async def send_message_to_users(all_api, all_proxy, users):
+async def send_message_to_users(all_api, users):
     a = 0
     text = input('Введите текст рассылки\n')
     while users:
         mesage_count = 0
-        proxy = all_proxy[a]
         api = all_api[a]
-        proxy = {
-            "proxy_type": "socks5",
-            "addr": proxy.address,
-            "port": proxy.port,
-            "username": proxy.username,
-            "password": proxy.password
-        }
-        client = TelegramClient(api.username, api_id=api.api_id, api_hash=api.api_hash, proxy=proxy)
+        client = TelegramClient(api.username, api_id=api.api_id, api_hash=api.api_hash, proxy=api.proxy)
         await client.start()
         while mesage_count < 4 and users:
             user = users[0]
@@ -121,20 +104,20 @@ async def send_message_to_users(all_api, all_proxy, users):
                 mesage_count += 1
                 time.sleep(3)
             a += 1
+        await client.disconnect()
 
 
 async def main():
     task = input('Вы уже актевировали сессии? Если нет, то введите 1, если акстивировали, то введите люой символ\n')
     all_api = API.objects.all()
-    all_proxy = Proxy.objects.all()
     if task == '1':
-        await activate_sessions(all_api, all_proxy)
+        await activate_sessions(all_api)
     task = int(input('Выбирите действие, которое хотите выполнить:\n'
                      '1 - Собр пользователей \n'
                      '2 Отправка пользователям сообщений\n'))
     if task == 1:
         api = all_api[0]
-        client = TelegramClient(api.username, api_id=api.api_id, api_hash=api.api_hash)
+        client = TelegramClient(api.username, api_id=api.api_id, api_hash=api.api_hash, proxy=api.proxy)
         await client.start(phone=api.phone)
         while True:
             urls = URLModels.objects.all()
@@ -144,9 +127,8 @@ async def main():
                 await get_users(channel, model_url, client)
     elif task == 2:
         all_api = API.objects.all()
-        all_proxy = Proxy.objects.all()
         users = Users.objects.filter(need_send_message=True)
-        await send_message_to_users(all_api, all_proxy, users)
+        await send_message_to_users(all_api, users)
 
 
 loop = asyncio.get_event_loop()
