@@ -18,7 +18,16 @@ from telethon.tl.functions.users import GetFullUserRequest
 
 async def activate_sessions(all_api):
     for api in all_api:
-        client = TelegramClient(api.username, api_id=api.api_id, api_hash=api.api_hash, proxy=api.proxy)
+        proxy = api.proxy
+        proxy = {
+            "proxy_type": "socks5",
+            "addr": proxy.address,
+            "port": proxy.port,
+            "username": proxy.username,
+            "password": proxy.password
+        }
+        print(api.phone)
+        client = TelegramClient(api.username, api_id=api.api_id, api_hash=api.api_hash, proxy=proxy)
         await client.start(phone=api.phone)
         await client.disconnect()
 
