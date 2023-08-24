@@ -10,7 +10,7 @@ os.environ['DJANGO_SETTINGS_MODULE'] = 'Models.settings'
 os.environ["DJANGO_ALLOW_ASYNC_UNSAFE"] = "true"
 django.setup()
 
-from tg_bot_models.models import URLModels, Users, API, Proxy, SendMessage
+from tg_bot_models.models import URLModels, Users, API, Proxy, SendMessage, SampleMessage
 from telethon.sync import TelegramClient
 from telethon.tl.functions.messages import GetHistoryRequest
 from telethon.tl.functions.users import GetFullUserRequest
@@ -80,9 +80,10 @@ async def get_users(channel, model_url, client):
         offset_msg = messages[-1].id
 
 
-async def send_message_to_users(all_api, users):
+async def send_message_to_users(all_api, users, url):
     a = 0
-    text = input('Введите текст рассылки\n')
+    message_id = input('Введите ID сообщения\n')
+    message_text = SampleMessage.objects.get(id=message_id).text
     while users:
         mesage_count = 0
         api = all_api[a]
@@ -91,22 +92,25 @@ async def send_message_to_users(all_api, users):
         while mesage_count < 4 and users:
             user = users[0]
             try:
-                await client.send_message(user.username,
-                                          text)
+                await client.send_message(user.user_id,
+                                          message_text,
+                                          parse_mode="markdown")
                 user.need_send_message = False
                 user.massage_send = True
                 user.save()
-                users = Users.objects.filter(need_send_message=True)
+                users = Users.objects.filter(need_send_message=True,
+                                             find_chat=url)
                 SendMessage.objects.create(
                     user=user,
-                    message=text,
+                    message=message_text,
                     is_send=True,
                     error=None
                 )
+                time.sleep(5)
             except Exception as exc:
                 SendMessage.objects.create(
                     user=user,
-                    message=text,
+                    message=message_text,
                     is_send=False,
                     error=exc
                 )
@@ -117,13 +121,13 @@ async def send_message_to_users(all_api, users):
 
 
 async def main():
-    task = input('Вы уже актевировали сессии? Если нет, то введите 1, если акстивировали, то введите люой символ\n')
+    task = input('Вы уже активировали сессии? Если нет, то введите 1, если активировали, то введите любой символ\n')
     all_api = API.objects.all()
     if task == '1':
         await activate_sessions(all_api)
     task = int(input('Выбирите действие, которое хотите выполнить:\n'
                      '1 - Собр пользователей \n'
-                     '2 Отправка пользователям сообщений\n'))
+                     '2 - Отправка пользователям сообщений\n'))
     if task == 1:
         api = all_api[0]
         client = TelegramClient(api.username, api_id=api.api_id, api_hash=api.api_hash, proxy=api.proxy)
@@ -135,10 +139,18 @@ async def main():
                 channel = await client.get_entity(url)
                 await get_users(channel, model_url, client)
     elif task == 2:
+        users_amount = int(input('Введите количество пользователей\n'))
+        url = input("Введите URL чата, в котором найден пользователь\n")
         all_api = API.objects.all()
-        users = Users.objects.filter(need_send_message=True)
-        await send_message_to_users(all_api, users)
+        users = Users.objects.filter(need_send_message=True,
+                                     find_chat=url)
+        limited_users = []
+        for user in users[:users_amount]:
+            limited_users.append(user)
+        await send_message_to_users(all_api, limited_users, url)
 
+
+"https://t.me/+996703777111"
 
 loop = asyncio.get_event_loop()
 loop.run_until_complete(main())

@@ -1,1 +1,9 @@
 !/config.ini
+Models/tg_bot_models/migrations
+Models/db.sqlite3
+Models/TELIDAS.session
+.env
+Models/venv
+__pycache__/
+.idea/
+.vscode

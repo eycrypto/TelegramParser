@@ -28,7 +28,8 @@ class API(models.Model):
     phone = models.CharField(max_length=64, verbose_name='Номер телефона(должн начинаться с +')
     api_id = models.CharField(max_length=16, verbose_name='id API Telegram')
     api_hash = models.CharField(max_length=64, verbose_name='hash API Telegram')
-    proxy = models.ForeignKey('Proxy', on_delete=models.CASCADE, related_name='proxy',blank=True,null=True ,verbose_name='Прокси')
+    proxy = models.ForeignKey('Proxy', on_delete=models.CASCADE, related_name='proxy', blank=True, null=True,
+                              verbose_name='Прокси')
 
 
 class SendMessage(models.Model):
@@ -36,4 +37,9 @@ class SendMessage(models.Model):
                              verbose_name='Пользователь, которому отправлено сообщение')
     message = models.CharField(max_length=2048, verbose_name='Текст сообщения')
     is_send = models.BooleanField(verbose_name='Отправлено ли сообщение')
+    error = models.CharField(null=True, blank=True, max_length=128, verbose_name='Ошибка, если есть')
+
+
+class SampleMessage(models.Model):
+    text = models.TextField(verbose_name='Текст')
     error = models.CharField(null=True, blank=True, max_length=128, verbose_name='Ошибка, если есть')
