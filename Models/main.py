@@ -80,43 +80,39 @@ async def get_users(channel, model_url, client):
         offset_msg = messages[-1].id
 
 
-async def send_message_to_users(all_api, users, url):
+async def send_message_to_users(all_api, users):
     a = 0
     message_id = input('Введите ID сообщения\n')
     message_text = SampleMessage.objects.get(id=message_id).text
-    while users:
-        mesage_count = 0
+    for user in users:
         api = all_api[a]
         client = TelegramClient(api.username, api_id=api.api_id, api_hash=api.api_hash, proxy=api.proxy)
         await client.start()
-        while mesage_count < 4 and users:
-            user = users[0]
-            try:
-                await client.send_message(user.user_id,
-                                          message_text,
-                                          parse_mode="markdown")
-                user.need_send_message = False
-                user.massage_send = True
-                user.save()
-                users = Users.objects.filter(need_send_message=True,
-                                             find_chat=url)
-                SendMessage.objects.create(
-                    user=user,
-                    message=message_text,
-                    is_send=True,
-                    error=None
-                )
-                time.sleep(5)
-            except Exception as exc:
-                SendMessage.objects.create(
-                    user=user,
-                    message=message_text,
-                    is_send=False,
-                    error=exc
-                )
-                mesage_count += 1
-                time.sleep(3)
-            a += 1
+        try:
+            await client.send_message(user.user_id,
+                                      message_text,
+                                      parse_mode="markdown")
+
+            user.need_send_message = False
+            user.massage_send = True
+            user.save()
+            SendMessage.objects.create(
+                user=user,
+                message=message_text,
+                is_send=True,
+                error=None
+            )
+            print(f"User: {user.user_id}")
+            time.sleep(5)
+        except Exception as exc:
+            SendMessage.objects.create(
+                user=user,
+                message=message_text,
+                is_send=False,
+                error=exc
+            )
+            time.sleep(5)
+        a += 1
         await client.disconnect()
 
 
@@ -142,12 +138,12 @@ async def main():
         users_amount = int(input('Введите количество пользователей\n'))
         url = input("Введите URL чата, в котором найден пользователь\n")
         all_api = API.objects.all()
-        users = Users.objects.filter(need_send_message=True,
-                                     find_chat=url)
+        users = Users.objects.filter(
+            find_chat=url)
         limited_users = []
         for user in users[:users_amount]:
             limited_users.append(user)
-        await send_message_to_users(all_api, limited_users, url)
+        await send_message_to_users(all_api, limited_users)
 
 
 "https://t.me/+996703777111"
