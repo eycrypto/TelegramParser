@@ -86,7 +86,7 @@ async def send_message_to_users(all_api, users):
     message_text = SampleMessage.objects.get(id=message_id).text
     for user in users:
         api = all_api[a]
-        client = TelegramClient(api.username, api_id=api.api_id, api_hash=api.api_hash, proxy=api.proxy)
+        client = TelegramClient(api.username, api_id=api.api_id, api_hash=api.api_hash)
         await client.start()
         try:
             await client.send_message(user.user_id,
