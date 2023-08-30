@@ -85,7 +85,11 @@ async def send_message_to_users(all_api, users):
     message_id = input('Введите ID сообщения\n')
     message_text = SampleMessage.objects.get(id=message_id).text
     for user in users:
-        api = all_api[a]
+        try:
+            api = all_api[a]
+        except IndexError:
+            a = 0
+            api = all_api[a]
         client = TelegramClient(api.username, api_id=api.api_id, api_hash=api.api_hash)
         await client.start()
         try:
@@ -102,7 +106,8 @@ async def send_message_to_users(all_api, users):
                 is_send=True,
                 error=None
             )
-            print(f"User: {user.user_id}")
+            print(f"API: {api.api_id}")
+            print(f"User: {user.user_id}\n")
             time.sleep(5)
         except Exception as exc:
             SendMessage.objects.create(
