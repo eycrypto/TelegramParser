@@ -2,6 +2,9 @@
 Models/tg_bot_models/migrations
 Models/db.sqlite3
 Models/TELIDAS.session
+Models/fknewviet.session
+Models/konfviet.session
+Models/TELIDASЫЫЫ.session
 .env
 Models/venv
 __pycache__/

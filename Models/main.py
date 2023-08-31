@@ -93,7 +93,7 @@ async def send_message_to_users(all_api, users):
         client = TelegramClient(api.username, api_id=api.api_id, api_hash=api.api_hash)
         await client.start()
         try:
-            await client.send_message(user.user_id,
+            await client.send_message(user.username,
                                       message_text,
                                       parse_mode="markdown")
 
@@ -107,7 +107,8 @@ async def send_message_to_users(all_api, users):
                 error=None
             )
             print(f"API: {api.api_id}")
-            print(f"User: {user.user_id}\n")
+            # print(f"User: {user.user_id}\n")
+            print(f"Username: {user.username}\n")
             time.sleep(5)
         except Exception as exc:
             SendMessage.objects.create(
@@ -147,7 +148,11 @@ async def main():
             find_chat=url)
         limited_users = []
         for user in users[:users_amount]:
-            limited_users.append(user)
+            print(user)
+            if not user.username:
+                pass
+            else:
+                limited_users.append(user)
         await send_message_to_users(all_api, limited_users)
 
 
