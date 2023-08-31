@@ -101,6 +101,7 @@ async def send_message_to_users(all_api, users):
             user.massage_send = True
             user.save()
             SendMessage.objects.create(
+                api=api,
                 user=user,
                 message=message_text,
                 is_send=True,
@@ -112,6 +113,7 @@ async def send_message_to_users(all_api, users):
             time.sleep(5)
         except Exception as exc:
             SendMessage.objects.create(
+                api=api,
                 user=user,
                 message=message_text,
                 is_send=False,

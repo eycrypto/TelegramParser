@@ -32,7 +32,7 @@ class ProxyAdmin(admin.ModelAdmin):
 
 @admin.register(SendMessage)
 class SendMessageAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'user_id', "user_username")
+    list_display = ('pk', "api", 'user_id', "user_username")
 
     list_filter = ['is_send']
 
@@ -41,6 +41,9 @@ class SendMessageAdmin(admin.ModelAdmin):
 
     def user_username(self, obj):
         return obj.user.username
+
+    def api(self, obj):
+        return obj.api.api_id
 
 
 @admin.register(SampleMessage)

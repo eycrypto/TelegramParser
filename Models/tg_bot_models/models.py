@@ -31,8 +31,13 @@ class API(models.Model):
     proxy = models.ForeignKey('Proxy', on_delete=models.CASCADE, related_name='proxy', blank=True, null=True,
                               verbose_name='Прокси')
 
+    def __str__(self):
+        return f"API_ID: {self.api_id}***API_USERNAME: {self.username}"
+
 
 class SendMessage(models.Model):
+    api = models.ForeignKey('API', on_delete=models.CASCADE, related_name='api_message',
+                            verbose_name='API, с которого отправлено сообщение', null=True)
     user = models.ForeignKey('Users', on_delete=models.CASCADE, related_name='user',
                              verbose_name='Пользователь, которому отправлено сообщение')
     message = models.CharField(max_length=2048, verbose_name='Текст сообщения')
