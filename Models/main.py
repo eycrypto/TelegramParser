@@ -107,7 +107,7 @@ async def send_message_to_users(all_api, users):
                 all_dialogs = [d for d in await client.get_dialogs()]
                 only_groups = list(filter(lambda d: d.is_group, all_dialogs))
                 for group in only_groups:
-                    if group.entity.id == int(bot_config.CHANNEL_ID[1:]):
+                    if group.entity.id == int(bot_config.CHANNEL_ID_CHEQUES):
                         message = await client.get_messages(group)
                         await client.forward_messages(
                             user.username,
