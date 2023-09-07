@@ -118,7 +118,7 @@ async def send_message_to_users(all_api, users, url):
                         SendMessage.objects.create(
                             api=api,
                             user=user,
-                            message=url,
+                            message=message[0].reply_markup.rows[0].buttons[0].url,
                             is_send=True,
                             error=None
                         )
@@ -138,7 +138,7 @@ async def send_message_to_users(all_api, users, url):
                 SendMessage.objects.create(
                     api=api,
                     user=user,
-                    message=url,
+                    message=message_text,
                     is_send=True,
                     error=None
                 )
