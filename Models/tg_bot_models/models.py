@@ -28,6 +28,7 @@ class API(models.Model):
     phone = models.CharField(max_length=64, verbose_name='Номер телефона(должн начинаться с +')
     api_id = models.CharField(max_length=16, verbose_name='id API Telegram')
     api_hash = models.CharField(max_length=64, verbose_name='hash API Telegram')
+    use = models.BooleanField(default=True, verbose_name='Нужно ли использовать API для рассылки сообщений', null=True)
     proxy = models.ForeignKey('Proxy', on_delete=models.CASCADE, related_name='proxy', blank=True, null=True,
                               verbose_name='Прокси')
 

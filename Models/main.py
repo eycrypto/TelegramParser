@@ -83,7 +83,7 @@ async def get_users(channel, model_url, client):
         offset_msg = messages[-1].id
 
 
-async def send_message_to_users(all_api, users):
+async def send_message_to_users(all_api, users, url):
     global message_text
     a = 0
 
@@ -113,8 +113,19 @@ async def send_message_to_users(all_api, users):
                             user.username,
                             message[0],
                         )
-                        print(f"API: {api.api_id}")
-                        print(f"Username: {user.username}\n")
+                        user.massage_send = True
+                        user.save()
+                        SendMessage.objects.create(
+                            api=api,
+                            user=user,
+                            message=url,
+                            is_send=True,
+                            error=None
+                        )
+                        print(f"API_ID: {api.api_id}")
+                        print(f"API_USERNAME: {api.username}")
+                        print(f"API_PHONE_NUMBER: {api.phone}")
+                        print(f"User: {user.username}\n")
                         time.sleep(5)
             else:
                 await client.send_message(user.username,
@@ -127,12 +138,14 @@ async def send_message_to_users(all_api, users):
                 SendMessage.objects.create(
                     api=api,
                     user=user,
-                    message=message_text,
+                    message=url,
                     is_send=True,
                     error=None
                 )
-                print(f"API: {api.api_id}")
-                print(f"Username: {user.username}\n")
+                print(f"API_ID: {api.api_id}")
+                print(f"API_USERNAME: {api.username}")
+                print(f"API_PHONE_NUMBER: {api.phone}")
+                print(f"User: {user.username}\n")
                 time.sleep(5)
         except Exception as exc:
             print(exc)
@@ -177,7 +190,9 @@ async def reactions(chat, all_api):
                             emoticon=reaction
                         )]
                     ))
-                    print(f"API: {api.api_id}")
+                    print(f"API_ID: {api.api_id}")
+                    print(f"API_USERNAME: {api.username}")
+                    print(f"API_PHONE_NUMBER: {api.phone}")
                     print(f"Channel: {group.entity.username}\n")
             except AttributeError:
                 pass
@@ -191,7 +206,9 @@ async def reactions(chat, all_api):
                             emoticon=reaction
                         )]
                     ))
-                    print(f"API: {api.api_id}")
+                    print(f"API_ID: {api.api_id}")
+                    print(f"API_USERNAME: {api.username}")
+                    print(f"API_PHONE_NUMBER: {api.phone}")
                     print(f"Channel: {channel.entity.username}\n")
             except AttributeError:
                 pass
@@ -228,7 +245,9 @@ async def leaving_comment(chat, all_api):
                             comment_to=channel.message,
                             parse_mode="markdown"
                         )
-                        print(f"API: {api.api_id}")
+                        print(f"API_ID: {api.api_id}")
+                        print(f"API_USERNAME: {api.username}")
+                        print(f"API_PHONE_NUMBER: {api.phone}")
                         print(f"Channel: {channel.entity.username}\n")
             except AttributeError as e:
                 print(e)
@@ -237,7 +256,7 @@ async def leaving_comment(chat, all_api):
 
 async def main():
     task = input('Вы уже активировали сессии? Если нет, то введите 1, если активировали, то введите любой символ\n')
-    all_api = API.objects.all()
+    all_api = API.objects.filter(use=True)
     if task == '1':
         await activate_sessions(all_api)
     task = int(input('Выберите действие, которое хотите выполнить:\n'
@@ -259,15 +278,15 @@ async def main():
     elif task == 2:
         users_amount = int(input('Введите количество пользователей\n'))
         url = input("Введите URL чата, в котором найден пользователь\n")
-        users = Users.objects.filter(
-            find_chat=url)
+        users = Users.objects.filter(find_chat=url,
+                                     massage_send=False)
         limited_users = []
         for user in users[:users_amount]:
             if not user.username:
                 pass
             else:
                 limited_users.append(user)
-        await send_message_to_users(all_api, limited_users)
+        await send_message_to_users(all_api, limited_users, url=url)
 
     elif task == 3:
         channel_id = input('Введите Username Канала\n')
