@@ -71,7 +71,7 @@ async def load_text(message: types.Message,
         )
 
     await bot.send_message(
-        chat_id=bot_config.CHANNEL,
+        chat_id=bot_config.CHANNEL_ID,
         text=message.text,
         reply_markup=markup
     )
