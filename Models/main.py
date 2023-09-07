@@ -100,7 +100,15 @@ async def send_message_to_users(all_api, users, url):
         except IndexError:
             a = 0
             api = all_api[a]
-        client = TelegramClient(api.username, api_id=api.api_id, api_hash=api.api_hash)
+        proxy = api.proxy
+        proxy = {
+            "proxy_type": "socks5",
+            "addr": proxy.address,
+            "port": proxy.port,
+            "username": proxy.username,
+            "password": proxy.password
+        }
+        client = TelegramClient(api.username, api_id=api.api_id, api_hash=api.api_hash, proxy=proxy)
         await client.start()
         try:
             if message_id == '0':
@@ -170,8 +178,15 @@ async def reactions(chat, all_api):
         except IndexError:
             reactions = ['👍', '❤️', '👏', '🎉']
             reaction = random.choice(reactions)
-
-        client = TelegramClient(api.username, api_id=api.api_id, api_hash=api.api_hash)
+        proxy = api.proxy
+        proxy = {
+            "proxy_type": "socks5",
+            "addr": proxy.address,
+            "port": proxy.port,
+            "username": proxy.username,
+            "password": proxy.password
+        }
+        client = TelegramClient(api.username, api_id=api.api_id, api_hash=api.api_hash, proxy=proxy)
         await client.start()
         await client(functions.channels.JoinChannelRequest(
             channel=chat
@@ -221,7 +236,15 @@ async def leaving_comment(chat, all_api):
     text = input('Введите сообщение которое хотите оставить под постом\n')
     sent_history = False
     for api in all_api:
-        client = TelegramClient(api.username, api_id=api.api_id, api_hash=api.api_hash)
+        proxy = api.proxy
+        proxy = {
+            "proxy_type": "socks5",
+            "addr": proxy.address,
+            "port": proxy.port,
+            "username": proxy.username,
+            "password": proxy.password
+        }
+        client = TelegramClient(api.username, api_id=api.api_id, api_hash=api.api_hash, proxy=proxy)
         await client.start()
         me = await client.get_me()
         await client(functions.channels.JoinChannelRequest(
@@ -266,8 +289,15 @@ async def main():
                      ))
     if task == 1:
         api = all_api[0]
-
-        client = TelegramClient(api.username, api_id=api.api_id, api_hash=api.api_hash, proxy=api.proxy)
+        proxy = api.proxy
+        proxy = {
+            "proxy_type": "socks5",
+            "addr": proxy.address,
+            "port": proxy.port,
+            "username": proxy.username,
+            "password": proxy.password
+        }
+        client = TelegramClient(api.username, api_id=api.api_id, api_hash=api.api_hash, proxy=proxy)
         await client.start(phone=api.phone)
         while True:
             urls = URLModels.objects.all()
