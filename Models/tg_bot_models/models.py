@@ -22,6 +22,9 @@ class Proxy(models.Model):
     username = models.CharField(max_length=64, blank=True, null=True, verbose_name='Имя пользователя прокси')
     password = models.CharField(max_length=128, blank=True, null=True, verbose_name='Пароль пользователя прокси')
 
+    def __str__(self):
+        return f"{self.address} {self.port}"
+
 
 class API(models.Model):
     username = models.CharField(max_length=64, verbose_name='Имя пользователя')

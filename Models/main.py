@@ -133,6 +133,7 @@ async def send_message_to_users(all_api, users, url):
                         print(f"API_ID: {api.api_id}")
                         print(f"API_USERNAME: {api.username}")
                         print(f"API_PHONE_NUMBER: {api.phone}")
+                        print(f"API_PROXY_ADDRESS: {api.proxy.address}")
                         print(f"User: {user.username}\n")
                         time.sleep(5)
             else:
@@ -153,6 +154,7 @@ async def send_message_to_users(all_api, users, url):
                 print(f"API_ID: {api.api_id}")
                 print(f"API_USERNAME: {api.username}")
                 print(f"API_PHONE_NUMBER: {api.phone}")
+                print(f"API_PROXY_ADDRESS: {api.proxy.address}")
                 print(f"User: {user.username}\n")
                 time.sleep(5)
         except Exception as exc:
@@ -208,6 +210,7 @@ async def reactions(chat, all_api):
                     print(f"API_ID: {api.api_id}")
                     print(f"API_USERNAME: {api.username}")
                     print(f"API_PHONE_NUMBER: {api.phone}")
+                    print(f"API_PROXY_ADDRESS: {api.proxy.address}")
                     print(f"Channel: {group.entity.username}\n")
             except AttributeError:
                 pass
@@ -224,6 +227,7 @@ async def reactions(chat, all_api):
                     print(f"API_ID: {api.api_id}")
                     print(f"API_USERNAME: {api.username}")
                     print(f"API_PHONE_NUMBER: {api.phone}")
+                    print(f"API_PROXY_ADDRESS: {api.proxy.address}")
                     print(f"Channel: {channel.entity.username}\n")
             except AttributeError:
                 pass
@@ -271,6 +275,7 @@ async def leaving_comment(chat, all_api):
                         print(f"API_ID: {api.api_id}")
                         print(f"API_USERNAME: {api.username}")
                         print(f"API_PHONE_NUMBER: {api.phone}")
+                        print(f"API_PROXY_ADDRESS: {api.proxy.address}")
                         print(f"Channel: {channel.entity.username}\n")
             except AttributeError as e:
                 print(e)

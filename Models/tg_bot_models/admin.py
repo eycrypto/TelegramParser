@@ -22,12 +22,12 @@ class URLAdmin(admin.ModelAdmin):
 
 @admin.register(API)
 class APIAdmin(admin.ModelAdmin):
-    pass
+    list_display = ('pk', "username", 'phone', "use", "proxy")
 
 
 @admin.register(Proxy)
 class ProxyAdmin(admin.ModelAdmin):
-    pass
+    list_display = ('pk', "address", 'port', "username", "password")
 
 
 @admin.register(SendMessage)
