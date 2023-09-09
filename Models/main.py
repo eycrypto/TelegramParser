@@ -135,7 +135,7 @@ async def send_message_to_users(all_api, users, url):
                         print(f"API_PHONE_NUMBER: {api.phone}")
                         print(f"API_PROXY_ADDRESS: {api.proxy.address}")
                         print(f"User: {user.username}\n")
-                        time.sleep(5)
+                        await asyncio.sleep(10)
             else:
                 await client.send_message(user.username,
                                           message_text,
@@ -156,7 +156,7 @@ async def send_message_to_users(all_api, users, url):
                 print(f"API_PHONE_NUMBER: {api.phone}")
                 print(f"API_PROXY_ADDRESS: {api.proxy.address}")
                 print(f"User: {user.username}\n")
-                time.sleep(5)
+                await asyncio.sleep(10)
         except Exception as exc:
             print(exc)
             SendMessage.objects.create(
@@ -166,7 +166,7 @@ async def send_message_to_users(all_api, users, url):
                 is_send=False,
                 error=exc
             )
-            time.sleep(5)
+            await asyncio.sleep(10)
         a += 1
         await client.disconnect()
 
@@ -233,7 +233,7 @@ async def reactions(chat, all_api):
                 pass
 
         await client.disconnect()
-        await asyncio.sleep(5)
+        await asyncio.sleep(10)
 
 
 async def leaving_comment(chat, all_api):
@@ -277,6 +277,7 @@ async def leaving_comment(chat, all_api):
                         print(f"API_PHONE_NUMBER: {api.phone}")
                         print(f"API_PROXY_ADDRESS: {api.proxy.address}")
                         print(f"Channel: {channel.entity.username}\n")
+                        await asyncio.sleep(10)
             except AttributeError as e:
                 print(e)
                 pass
