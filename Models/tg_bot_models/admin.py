@@ -16,7 +16,7 @@ class URLAdmin(admin.ModelAdmin):
 
 @admin.register(Users)
 class URLAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'username')
+    list_display = ('pk', 'username', "find_chat", 'massage_send')
     list_filter = ['need_send_message', 'massage_send']
 
 

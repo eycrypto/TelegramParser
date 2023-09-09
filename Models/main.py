@@ -108,6 +108,10 @@ async def send_message_to_users(all_api, users, url):
             "username": proxy.username,
             "password": proxy.password
         }
+        print(f"API_ID: {api.api_id}")
+        print(f"API_USERNAME: {api.username}")
+        print(f"API_PHONE_NUMBER: {api.phone}")
+        print(f"API_PROXY_ADDRESS: {api.proxy.address}")
         client = TelegramClient(api.username, api_id=api.api_id, api_hash=api.api_hash, proxy=proxy)
         await client.start()
         try:
@@ -130,10 +134,6 @@ async def send_message_to_users(all_api, users, url):
                             is_send=True,
                             error=None
                         )
-                        print(f"API_ID: {api.api_id}")
-                        print(f"API_USERNAME: {api.username}")
-                        print(f"API_PHONE_NUMBER: {api.phone}")
-                        print(f"API_PROXY_ADDRESS: {api.proxy.address}")
                         print(f"User: {user.username}\n")
                         await asyncio.sleep(10)
             else:
@@ -151,10 +151,6 @@ async def send_message_to_users(all_api, users, url):
                     is_send=True,
                     error=None
                 )
-                print(f"API_ID: {api.api_id}")
-                print(f"API_USERNAME: {api.username}")
-                print(f"API_PHONE_NUMBER: {api.phone}")
-                print(f"API_PROXY_ADDRESS: {api.proxy.address}")
                 print(f"User: {user.username}\n")
                 await asyncio.sleep(10)
         except Exception as exc:
@@ -188,6 +184,10 @@ async def reactions(chat, all_api):
             "username": proxy.username,
             "password": proxy.password
         }
+        print(f"API_ID: {api.api_id}")
+        print(f"API_USERNAME: {api.username}")
+        print(f"API_PHONE_NUMBER: {api.phone}")
+        print(f"API_PROXY_ADDRESS: {api.proxy.address}")
         client = TelegramClient(api.username, api_id=api.api_id, api_hash=api.api_hash, proxy=proxy)
         await client.start()
         await client(functions.channels.JoinChannelRequest(
@@ -207,10 +207,6 @@ async def reactions(chat, all_api):
                             emoticon=reaction
                         )]
                     ))
-                    print(f"API_ID: {api.api_id}")
-                    print(f"API_USERNAME: {api.username}")
-                    print(f"API_PHONE_NUMBER: {api.phone}")
-                    print(f"API_PROXY_ADDRESS: {api.proxy.address}")
                     print(f"Channel: {group.entity.username}\n")
             except AttributeError:
                 pass
@@ -224,10 +220,6 @@ async def reactions(chat, all_api):
                             emoticon=reaction
                         )]
                     ))
-                    print(f"API_ID: {api.api_id}")
-                    print(f"API_USERNAME: {api.username}")
-                    print(f"API_PHONE_NUMBER: {api.phone}")
-                    print(f"API_PROXY_ADDRESS: {api.proxy.address}")
                     print(f"Channel: {channel.entity.username}\n")
             except AttributeError:
                 pass
@@ -248,6 +240,10 @@ async def leaving_comment(chat, all_api):
             "username": proxy.username,
             "password": proxy.password
         }
+        print(f"API_ID: {api.api_id}")
+        print(f"API_USERNAME: {api.username}")
+        print(f"API_PHONE_NUMBER: {api.phone}")
+        print(f"API_PROXY_ADDRESS: {api.proxy.address}")
         client = TelegramClient(api.username, api_id=api.api_id, api_hash=api.api_hash, proxy=proxy)
         await client.start()
         me = await client.get_me()
